@@ -1,13 +1,5 @@
-import {
-  Address,
-  beginCell,
-  Cell,
-  Contract,
-  contractAddress,
-  ContractProvider,
-  Sender,
-  SendMode,
-} from "@ton/core";
+import { Address, beginCell, Cell, contractAddress, SendMode } from "@ton/core";
+import type { Contract, ContractProvider, Sender } from "@ton/core";
 
 const INITIAL_NUM_PARTICIPANTS = 0;
 const MIN_DEPOSIT: bigint = 1000000000n;

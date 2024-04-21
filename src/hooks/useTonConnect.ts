@@ -1,6 +1,5 @@
-import { onMounted, ref } from "vue";
 import { TonConnectUI, type WalletsModalState } from "@tonconnect/ui";
-import { toNano, type Address } from "@ton/core";
+import type { Sender, SenderArguments } from "@ton/core";
 
 export async function useTonConnect() {
   const tonConnectUI = new TonConnectUI({
@@ -26,20 +25,23 @@ export async function subscribeTonConnectChanges(tonConnectUI: TonConnectUI) {
   return unsubscribeModal;
 }
 
-export async function sendTransaction(
-  tonConnectUI: TonConnectUI,
-  to_: string,
-  toncoins_amount: number
-) {
-  const transaction = {
-    validUntil: 60 * 60, // valid for 1 hour
-    messages: [
-      {
-        address: to_, // destination address
-        amount: toNano(toncoins_amount).toString(), //Toncoin in nanotons
+export function getSenderTonConnect(tonConnectUI: TonConnectUI): {
+  sender: Sender;
+} {
+  return {
+    sender: {
+      send: async (args: SenderArguments) => {
+        tonConnectUI.sendTransaction({
+          messages: [
+            {
+              address: args.to.toString(),
+              amount: args.value.toString(),
+              payload: args.body?.toBoc().toString("base64"),
+            },
+          ],
+          validUntil: Date.now() + 5 * 60 * 1000, // 5 minutes for user to approve
+        });
       },
-    ],
+    },
   };
-
-  const result = await tonConnectUI.sendTransaction(transaction);
 }

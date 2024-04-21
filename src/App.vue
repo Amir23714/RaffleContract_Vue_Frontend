@@ -1,6 +1,7 @@
 <script>
 import { getStaticData, getDynamicData } from "./hooks/useRaffleContract";
 import { ref, onMounted, onUnmounted, reactive } from "vue";
+import { Address } from "@ton/core";
 
 export default {
   name: "MainApp",
@@ -13,6 +14,12 @@ export default {
       recent_winner: null,
       unsubscribeModal: null,
       WalletConnected: null,
+      sender: null,
+      sendDeposit: null,
+      sendWithdraw: null,
+      sendStartRaffleProcess: null,
+      isOwner: null,
+      account_info: null,
     });
 
     let intervalId = null;
@@ -27,20 +34,36 @@ export default {
 
       const updateWalletConnection = async () => {
         data.value.WalletConnected = data.value.ton_connect.connected;
+        data.value.account_info = data.value.ton_connect.account;
+
+        data.value.isOwner =
+          Address.parse(data.value.owner_address).toString() ===
+          Address.parse(data.value.account_info.address).toString();
       };
       await updateWalletConnection();
 
       const updateData = async () => {
-        const dynamic_data_response = await getDynamicData();
+        const dynamic_data_response = await getDynamicData(
+          data.value.ton_connect
+        );
 
         data.value.contract_balance = dynamic_data_response.contract_balance;
         data.value.current_participants =
           dynamic_data_response.current_participants;
         data.value.recent_winner = dynamic_data_response.recent_winner;
+
+        data.value.sender = dynamic_data_response.sender;
+
+        data.value.sendDeposit = dynamic_data_response.sendDeposit;
+        data.value.sendWithdraw = dynamic_data_response.sendWithdraw;
+        data.value.sendStartRaffleProcess =
+          dynamic_data_response.sendStartRaffleProcess;
       };
 
       await updateData();
-      intervalId = setInterval(updateData, 5000);
+      intervalId = setInterval(() => {
+        updateData(data.value.ton_connect);
+      }, 5000);
       walletInterval = setInterval(updateWalletConnection, 500);
     });
 
@@ -65,8 +88,20 @@ export default {
     <p>Current participants: {{ current_participants }}</p>
     <p>Recent winner: {{ recent_winner }}</p>
 
-    <p v-if="WalletConnected">Wallet is connected</p>
+    <div class="action_options">
+      <a v-if="WalletConnected" @click="sendDeposit">Participate in raffle</a>
+      <a v-if="WalletConnected && isOwner" @click="sendWithdraw">Withdraw</a>
+      <a v-if="WalletConnected && isOwner" @click="sendStartRaffleProcess"
+        >Start raffle</a
+      >
+    </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.action_options {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+</style>

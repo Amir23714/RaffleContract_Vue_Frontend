@@ -2,11 +2,13 @@ import { RaffleContract } from "@/contracts/RaffleContract";
 import {
   useTonConnect,
   subscribeTonConnectChanges,
+  getSenderTonConnect,
 } from "../hooks/useTonConnect";
 import { getHttpEndpoint } from "@orbs-network/ton-access";
 
-import { Address, TonClient, fromNano, type OpenedContract } from "@ton/ton";
-import { onMounted, onUnmounted, ref } from "vue";
+import { Address, TonClient, fromNano, toNano } from "@ton/ton";
+import type { OpenedContract } from "@ton/ton";
+import type { TonConnectUI } from "@tonconnect/ui";
 
 const CONTRACT_ADDRESS: string =
   "EQD5IbH-GtcFVN9m8EsG_bFZzXwAfSKZnQUSwLSSReizCYFb";
@@ -27,13 +29,13 @@ export async function getStaticData() {
   const data = {
     ton_connect: tonConnectUI,
     owner_address: owner_address.owner_address.toString(),
-    unsubscribeModal: unsubscribeModal, 
+    unsubscribeModal: unsubscribeModal,
   };
 
   return data;
 }
 
-export async function getDynamicData() {
+export async function getDynamicData(tonConnectUI: TonConnectUI) {
   const endpoint = await getHttpEndpoint({ network: "testnet" }); // get the decentralized RPC endpoint
   const client = new TonClient({ endpoint });
 
@@ -45,19 +47,22 @@ export async function getDynamicData() {
   const num_participants = await raffle_contract.getNumParticipants();
   const balance = await raffle_contract.getContractBalance();
 
+  const { sender } = getSenderTonConnect(tonConnectUI);
+
   const data = {
+    sender: sender,
     recent_winner: recent_winner.recent_winner.toString(),
     current_participants: num_participants.num_participants,
     contract_balance: Number(fromNano(balance.contract_balance)),
-    // sendDeposit: async () => {
-    //   return raffle_contract.sendDeposit(sender, toNano(1));
-    // },
-    // sendWithdraw: async () => {
-    //   return raffle_contract.sendWithdraw(sender, toNano(0.01));
-    // },
-    // sendStartRaffleProcess: async () => {
-    //   return raffle_contract.sendStartRaffleProcess(sender, toNano(0.01));
-    // },
+    sendDeposit: async () => {
+      return raffle_contract?.sendDeposit(sender, toNano(1));
+    },
+    sendWithdraw: async () => {
+      return raffle_contract?.sendWithdraw(sender, toNano(0.01));
+    },
+    sendStartRaffleProcess: async () => {
+      return raffle_contract?.sendStartRaffleProcess(sender, toNano(0.01));
+    },
   };
 
   return data;
