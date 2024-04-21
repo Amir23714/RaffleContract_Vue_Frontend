@@ -36,9 +36,11 @@ export default {
         data.value.WalletConnected = data.value.ton_connect.connected;
         data.value.account_info = data.value.ton_connect.account;
 
-        data.value.isOwner =
-          Address.parse(data.value.owner_address).toString() ===
-          Address.parse(data.value.account_info.address).toString();
+        if (data.value.WalletConnected) {
+          data.value.isOwner =
+            Address.parse(data.value.owner_address).toString() ===
+            Address.parse(data.value.account_info.address).toString();
+        }
       };
       await updateWalletConnection();
 
