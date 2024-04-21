@@ -1,4 +1,6 @@
-<script></script>
+<script>
+export default {};
+</script>
 
 <template>
   <div class="upline_wrapper">
@@ -26,23 +28,23 @@
 }
 
 .upline_text {
-    font-size: 48px;
-    text-transform: uppercase;
-    color: white;
-    -webkit-text-stroke-width: 1px;
-    -webkit-text-stroke-color: white;
-    white-space: nowrap;
-    padding: 0 6rem;
-    letter-spacing: 1px;
-    animation: move-rtl 6000ms linear infinite;
+  font-size: 48px;
+  text-transform: uppercase;
+  color: white;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: white;
+  white-space: nowrap;
+  padding: 0 6rem;
+  letter-spacing: 1px;
+  animation: move-rtl 6000ms linear infinite;
 }
 
 @keyframes move-rtl {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-100%);
-    }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 </style>

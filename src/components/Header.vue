@@ -1,4 +1,6 @@
-<script></script>
+<script>
+export default {};
+</script>
 
 <template>
   <div class="header_wrapper">
