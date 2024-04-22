@@ -1,99 +1,106 @@
-<script>
+<script setup>
 import { getStaticData, getDynamicData } from "./hooks/useRaffleContract";
-import { ref, onMounted, onUnmounted, reactive } from "vue";
-import { Address } from "@ton/core";
+import { ref, onMounted, onUnmounted, reactive, toRaw } from "vue";
+import {
+  useTonConnect,
+  subscribeTonConnectChanges,
+} from "./hooks/useTonConnect";
 
-export default {
-  name: "MainApp",
-  setup() {
-    const data = ref({
-      ton_connect: null,
-      owner_address: null,
-      contract_balance: null,
-      current_participants: null,
-      recent_winner: null,
-      unsubscribeModal: null,
-      WalletConnected: null,
-      sender: null,
-      sendDeposit: null,
-      sendWithdraw: null,
-      sendStartRaffleProcess: null,
-      isOwner: null,
-      account_info: null,
-    });
+function setData(reference, data) {
+  reference.value = data;
+}
 
-    let intervalId = null;
-    let walletInterval = null;
+// Global variables
 
-    onMounted(async () => {
-      const static_data_response = await getStaticData();
+// Static data
+const ton_connect = ref(null);
+const unsubscribe = ref(null);
+const owner_address = ref(null);
+const contract_address = ref(null);
+let intervalId = null;
+const isLoading = ref(false);
 
-      data.value.ton_connect = reactive(static_data_response.ton_connect);
-      data.value.owner_address = static_data_response.owner_address;
-      data.value.unsubscribeModal = static_data_response.unsubscribeModal;
+// Dynamic data
+const connectionStatus = ref(false);
+const recent_winner = ref(null);
+const contract_balance = ref(null);
+const current_participants = ref(null);
+const sendDeposit = ref(null);
+const sendWithdraw = ref(null);
+const sendStartRaffleProcess = ref(null);
+const userWallet = ref(null);
+const isOwner = ref(false);
 
-      const updateWalletConnection = async () => {
-        data.value.WalletConnected = data.value.ton_connect.connected;
-        data.value.account_info = data.value.ton_connect.account;
+onMounted(async () => {
+  // Get and set owner address
+  const staticData = await getStaticData();
+  setData(owner_address, staticData.owner_address);
+  setData(contract_address, staticData.contract_address);
 
-        if (data.value.WalletConnected) {
-          data.value.isOwner =
-            Address.parse(data.value.owner_address).toString() ===
-            Address.parse(data.value.account_info.address).toString();
-        }
-      };
-      await updateWalletConnection();
+  // Get and set TonConnectUI
+  const { tonConnectUI } = useTonConnect();
+  setData(ton_connect, reactive(tonConnectUI));
 
-      const updateData = async () => {
-        const dynamic_data_response = await getDynamicData(
-          data.value.ton_connect
-        );
+  // Subscribe to TonConnect changes
+  const { unsubscribe: unsubscribeValue } = subscribeTonConnectChanges(
+    ton_connect.value,
+    connectionStatus,
+    isOwner,
+    userWallet,
+    owner_address
+  );
+  setData(unsubscribe, unsubscribeValue);
 
-        data.value.contract_balance = dynamic_data_response.contract_balance;
-        data.value.current_participants =
-          dynamic_data_response.current_participants;
-        data.value.recent_winner = dynamic_data_response.recent_winner;
+  // Get and set dynamic data
+  const updateData = async () => {
+    setData(isLoading, true);
+    const dynamic_data = await getDynamicData(ton_connect.value);
 
-        data.value.sender = dynamic_data_response.sender;
+    setData(recent_winner, dynamic_data.recent_winner);
+    setData(contract_balance, dynamic_data.contract_balance);
+    setData(current_participants, dynamic_data.current_participants);
+    setData(sendDeposit, dynamic_data.sendDeposit);
+    setData(sendWithdraw, dynamic_data.sendWithdraw);
+    setData(sendStartRaffleProcess, dynamic_data.sendStartRaffleProcess);
+    setData(isLoading, false);
+  };
+  await updateData();
 
-        data.value.sendDeposit = dynamic_data_response.sendDeposit;
-        data.value.sendWithdraw = dynamic_data_response.sendWithdraw;
-        data.value.sendStartRaffleProcess =
-          dynamic_data_response.sendStartRaffleProcess;
-      };
+  // Start updating dynamic data every 5 seconds
+  intervalId = setInterval(updateData, 5000);
+});
 
-      await updateData();
-      intervalId = setInterval(() => {
-        updateData(data.value.ton_connect);
-      }, 5000);
-      walletInterval = setInterval(updateWalletConnection, 500);
-    });
-
-    onUnmounted(() => {
-      // Clear the interval when the component is unmounted
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    });
-
-    return data.value;
-  },
-};
+onUnmounted(() => {
+  // Stop updating when the component is unmounted
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
+});
 </script>
 
 <template>
   <Upline />
   <Header />
   <div class="main_wrapper">
+    <p>Contract Address: {{ contract_address }}</p>
     <p>Contract owner: {{ owner_address }}</p>
-    <p>Contract balance: {{ contract_balance }} TON</p>
-    <p>Current participants: {{ current_participants }}</p>
-    <p>Recent winner: {{ recent_winner }}</p>
+    <p>
+      Contract balance: {{ contract_balance }} TON
+      <span v-if="isLoading">| Loading...</span>
+    </p>
+    <p>
+      Current participants: {{ current_participants }}
+      <span v-if="isLoading">| Loading...</span>
+    </p>
+    <p>
+      Recent winner: {{ recent_winner }}
+      <span v-if="isLoading">| Loading...</span>
+    </p>
 
     <div class="action_options">
-      <a v-if="WalletConnected" @click="sendDeposit">Participate in raffle</a>
-      <a v-if="WalletConnected && isOwner" @click="sendWithdraw">Withdraw</a>
-      <a v-if="WalletConnected && isOwner" @click="sendStartRaffleProcess"
+      <a v-if="connectionStatus" @click="sendDeposit">Participate in raffle</a>
+      <a v-if="connectionStatus && isOwner" @click="sendWithdraw">Withdraw</a>
+      <a v-if="connectionStatus && isOwner" @click="sendStartRaffleProcess"
         >Start raffle</a
       >
     </div>

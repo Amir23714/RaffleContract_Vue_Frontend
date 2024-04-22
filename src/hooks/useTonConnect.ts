@@ -1,28 +1,59 @@
-import { TonConnectUI, type WalletsModalState } from "@tonconnect/ui";
-import type { Sender, SenderArguments } from "@ton/core";
+import { THEME, TonConnectUI, type WalletsModalState } from "@tonconnect/ui";
+import { Address, type Sender, type SenderArguments } from "@ton/core";
 
-export async function useTonConnect() {
+export function useTonConnect() {
   const tonConnectUI = new TonConnectUI({
     manifestUrl:
       "https://raw.githubusercontent.com/Amir23714/ProjectConfigurations/main/RaffleContract_v1.0.0/manifest.json",
     buttonRootId: "tonconnect_but",
   });
 
+  tonConnectUI.uiOptions = {
+    language: "en",
+    uiPreferences: {
+      theme: THEME.DARK,
+    },
+  };
+
   return {
     tonConnectUI,
   };
 }
 
-export async function subscribeTonConnectChanges(tonConnectUI: TonConnectUI) {
-  const unsubscribeModal = tonConnectUI.onModalStateChange(
-    (state: WalletsModalState) => {
-      // update state/reactive variables to show updates in the ui
-      // state.status will be 'opened' or 'closed'
-      // if state.status is 'closed', you can check state.closeReason to find out the reason
-    }
-  );
+export function subscribeTonConnectChanges(
+  tonConnectUI: TonConnectUI,
+  connectionStatus: any,
+  isOwner: any,
+  userWallet: any,
+  owner_address: any
+) {
+  const unsubscribe = tonConnectUI.onStatusChange((walletAndwalletInfo) => {
+    // update state/reactive variables to show updates in the ui
+    connectionStatus.value = tonConnectUI.connected;
+    userWallet.value = walletAndwalletInfo;
 
-  return unsubscribeModal;
+    if (walletAndwalletInfo != null) {
+      const userAddress: string = Address.parse(
+        walletAndwalletInfo.account.address
+      ).toString();
+      const ownerAddress: string = Address.parse(
+        owner_address.value
+      ).toString();
+
+      if (userAddress === ownerAddress) {
+        isOwner.value = true;
+      } else {
+        isOwner.value = false;
+      }
+    } else {
+      isOwner.value = false;
+    }
+
+    console.log("Wallet and wallet info ", walletAndwalletInfo);
+    console.log("State changed ", connectionStatus.value);
+  });
+
+  return { unsubscribe };
 }
 
 export function getSenderTonConnect(tonConnectUI: TonConnectUI): {
