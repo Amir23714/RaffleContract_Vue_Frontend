@@ -10,6 +10,8 @@ function setData(reference, data) {
   reference.value = data;
 }
 
+import WebApp from "@twa-dev/sdk";
+
 // Global variables
 
 // Static data
@@ -68,6 +70,10 @@ onMounted(async () => {
 
   // Start updating dynamic data every 5 seconds
   intervalId = setInterval(updateData, 5000);
+
+  if (WebApp.platform != "unknown") {
+    WebApp.showAlert("POPUP");
+  }
 });
 
 onUnmounted(() => {
@@ -82,6 +88,7 @@ onUnmounted(() => {
   <Upline />
   <Header />
   <div class="main_wrapper">
+    <b>WebApp platform {{ WebApp.platform }}</b>
     <div class="dev_line">
       <div id="contract_address">
         <p class="desc-text">Contract Address</p>
