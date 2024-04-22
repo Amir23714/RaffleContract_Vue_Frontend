@@ -88,7 +88,6 @@ onUnmounted(() => {
   <Upline />
   <Header />
   <div class="main_wrapper">
-    <b>WebApp platform {{ WebApp.platform }}</b>
     <div class="dev_line">
       <div id="contract_address">
         <p class="desc-text">Contract Address</p>
