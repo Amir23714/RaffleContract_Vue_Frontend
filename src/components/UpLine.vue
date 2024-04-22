@@ -33,6 +33,8 @@ export default {};
   padding: 0 6rem;
   letter-spacing: 1px;
   animation: move-rtl 30000ms linear infinite;
+  
+  height: 55px;
 }
 
 @keyframes move-rtl {

@@ -84,26 +84,28 @@ onUnmounted(() => {
   <div class="main_wrapper">
     <div class="dev_line">
       <div id="contract_address">
-        <p>Contract Address</p>
+        <p class="desc-text">Contract Address</p>
         <p>{{ contract_address }}</p>
       </div>
 
       <div id="owner_address">
-        <p>Contract Owner</p>
+        <p class="desc-text">Contract Owner</p>
         <p>{{ owner_address }}</p>
       </div>
     </div>
 
     <div class="status_line">
       <div id="recent_winner">
-        <p>Recent winner <span v-if="isLoading" class="loader"></span></p>
+        <p class="desc-text">
+          Recent winner <span v-if="isLoading" class="loader"></span>
+        </p>
         <p>
           {{ recent_winner }}
         </p>
       </div>
 
       <div id="current_partisipants">
-        <p>
+        <p class="desc-text">
           Current participants <span v-if="isLoading" class="loader"></span>
         </p>
         <p>
@@ -112,17 +114,42 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- <p>
-      Contract balance: {{ contract_balance }} TON
-      <span v-if="isLoading">| Loading...</span>
-    </p> -->
-
     <div class="action_options">
-      <a v-if="connectionStatus" @click="sendDeposit">Participate in raffle</a>
-      <a v-if="connectionStatus && isOwner" @click="sendWithdraw">Withdraw</a>
-      <a v-if="connectionStatus && isOwner" @click="sendStartRaffleProcess"
-        >Start raffle</a
-      >
+      <a
+        v-if="connectionStatus"
+        @click="sendDeposit"
+        href="#"
+        class="btn-flip"
+        data-back="1 TON"
+        data-front="Participate in raffle"
+      ></a>
+
+      <a
+        v-if="connectionStatus && isOwner"
+        @click="sendWithdraw"
+        href="#"
+        class="btn-flip"
+        data-back="You are rich"
+        data-front="Withdraw"
+      ></a>
+
+      <a
+        v-if="connectionStatus && isOwner"
+        @click="sendStartRaffleProcess"
+        href="#"
+        class="btn-flip btn-flip--start"
+        data-back="Iustitia praevalebit"
+        data-front="Start raffle"
+      ></a>
+    </div>
+
+    <div id="contract_balance">
+      <p class="desc-text">
+        Contract balance <span v-if="isLoading" class="loader"></span>
+      </p>
+      <p>
+        {{ contract_balance }}
+      </p>
     </div>
   </div>
 </template>
@@ -132,18 +159,23 @@ onUnmounted(() => {
   display: flex;
   align-items: flex-start;
   flex-direction: column;
-  margin-top: 5%;
+  margin-top: 10%;
   width: 100%;
+  height: 100%;
 
   font-family: "Work Sans", sans-serif;
   font-weight: 900;
   color: white;
   font-size: 1vw;
-  text-transform: uppercase;
   text-align: center;
   line-height: 1;
 
   gap: 50px;
+}
+
+.desc-text {
+  text-transform: uppercase;
+  font-size: 1vw;
 }
 
 .dev_line {
@@ -196,10 +228,83 @@ onUnmounted(() => {
   margin-right: 19%;
 }
 
+#contract_balance {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  margin-top: auto;
+  margin-right: auto;
+  margin-left: auto;
+
+  margin-bottom: 10px;
+}
+
 .action_options {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+
+  margin-top: 5%;
+  margin-right: auto;
+  margin-left: auto;
+  gap: 250px;
+}
+
+.btn-flip {
+  opacity: 1;
+  outline: 0;
+  color: #fff;
+  line-height: 40px;
+  position: relative;
+  text-align: center;
+  letter-spacing: 1px;
+  display: inline-block;
+  text-decoration: none;
+  font-family: "Open Sans";
+  text-transform: uppercase;
+}
+
+.btn-flip:hover::after {
+  opacity: 1;
+  transform: translateY(0) rotateX(0);
+}
+
+.btn-flip:hover::before {
+  opacity: 0;
+  transform: translateY(50%) rotateX(90deg);
+}
+
+.btn-flip::after {
+  top: 0;
+  left: 0;
+  opacity: 0;
+  width: 100%;
+  color: #323237;
+  display: block;
+  transition: 0.7s;
+  position: absolute;
+  background: #adadaf;
+  content: attr(data-back);
+  transform: translateY(-50%) rotateX(90deg);
+}
+
+.btn-flip::before {
+  top: 0;
+  left: 0;
+  opacity: 1;
+  color: #adadaf;
+  display: block;
+  padding: 0 30px;
+  line-height: 40px;
+  transition: 0.7s;
+  position: relative;
+  background: #323237;
+  content: attr(data-front);
+  transform: translateY(0) rotateX(0);
+}
+
+.btn-flip--start {
+  line-height: 20px;
 }
 
 .loader {
