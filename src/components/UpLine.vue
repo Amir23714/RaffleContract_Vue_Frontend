@@ -15,10 +15,6 @@ export default {};
 .upline_wrapper {
   width: 100%;
   background: red;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
 
   display: flex;
   justify-content: flex-start;
@@ -28,7 +24,7 @@ export default {};
 }
 
 .upline_text {
-  font-size: 48px;
+  font-size: 32px;
   text-transform: uppercase;
   color: white;
   -webkit-text-stroke-width: 1px;
@@ -36,7 +32,7 @@ export default {};
   white-space: nowrap;
   padding: 0 6rem;
   letter-spacing: 1px;
-  animation: move-rtl 6000ms linear infinite;
+  animation: move-rtl 30000ms linear infinite;
 }
 
 @keyframes move-rtl {

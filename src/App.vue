@@ -82,20 +82,40 @@ onUnmounted(() => {
   <Upline />
   <Header />
   <div class="main_wrapper">
-    <p>Contract Address: {{ contract_address }}</p>
-    <p>Contract owner: {{ owner_address }}</p>
-    <p>
+    <div class="dev_line">
+      <div id="contract_address">
+        <p>Contract Address</p>
+        <p>{{ contract_address }}</p>
+      </div>
+
+      <div id="owner_address">
+        <p>Contract Owner</p>
+        <p>{{ owner_address }}</p>
+      </div>
+    </div>
+
+    <div class="status_line">
+      <div id="recent_winner">
+        <p>Recent winner <span v-if="isLoading" class="loader"></span></p>
+        <p>
+          {{ recent_winner }}
+        </p>
+      </div>
+
+      <div id="current_partisipants">
+        <p>
+          Current participants <span v-if="isLoading" class="loader"></span>
+        </p>
+        <p>
+          {{ current_participants }}
+        </p>
+      </div>
+    </div>
+
+    <!-- <p>
       Contract balance: {{ contract_balance }} TON
       <span v-if="isLoading">| Loading...</span>
-    </p>
-    <p>
-      Current participants: {{ current_participants }}
-      <span v-if="isLoading">| Loading...</span>
-    </p>
-    <p>
-      Recent winner: {{ recent_winner }}
-      <span v-if="isLoading">| Loading...</span>
-    </p>
+    </p> -->
 
     <div class="action_options">
       <a v-if="connectionStatus" @click="sendDeposit">Participate in raffle</a>
@@ -108,9 +128,97 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.main_wrapper {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  margin-top: 5%;
+  width: 100%;
+
+  font-family: "Work Sans", sans-serif;
+  font-weight: 900;
+  color: white;
+  font-size: 1vw;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1;
+
+  gap: 50px;
+}
+
+.dev_line {
+  display: flex;
+  flex-direction: row; /* Add this line */
+  justify-content: space-between;
+  width: 100%;
+}
+
+.status_line {
+  display: flex;
+  flex-direction: row; /* Add this line */
+  justify-content: space-between;
+  width: 100%;
+}
+
+#owner_address {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  margin-right: 10%;
+}
+
+#contract_address {
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  margin-left: 10%;
+}
+
+#recent_winner {
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  margin-left: 10%;
+}
+
+#current_partisipants {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  margin-right: 19%;
+}
+
 .action_options {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
+}
+
+.loader {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #fff;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
