@@ -176,6 +176,7 @@ onUnmounted(() => {
 .desc-text {
   text-transform: uppercase;
   font-size: 1vw;
+  position: relative;
 }
 
 .dev_line {
@@ -308,6 +309,8 @@ onUnmounted(() => {
 }
 
 .loader {
+  margin-left: 2%;
+  position: absolute;
   width: 12px;
   height: 12px;
   border-radius: 50%;
